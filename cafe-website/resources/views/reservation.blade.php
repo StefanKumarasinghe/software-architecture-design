@@ -17,9 +17,8 @@
         }
 
         .navbar {
-            background-color: #563d7c;
-            position: fixed;
-            top: 0;
+            background-color: black;
+    
             width: 100%;
         }
 
@@ -51,32 +50,49 @@
             object-fit: cover;
             height: 200px;
         }
+        #toast {
+        position: fixed;
+        bottom: 0px;
+        text-align:center;
+        
+        margin:10px  ;
+        display:block;
+
+
+        color: white;
+        padding: 16px;
+        border-radius: 8px;
+        z-index: 9999;
+        
+        }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg p-3 navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{route('home')}}">Koala Cafe</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse fw-bold" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('menu')}}">Menu</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('reservation')}}">Make Reservation</a>
+                        <a class="nav-link" href="{{route('cart')}}">My Cart</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('cart')}}">My Cart</a>
+                        <a class="nav-link" href="{{route('my_order')}}">My Orders</a>
                     </li>
                 </ul>
             </div>
+            <a href="" class="btn text-white">@if(session()->has('email')){{ session('email') }}@endif</a>
         </div>
     </nav>
+
     <!-- Reservation List and Create Form -->
     <div class="jumbotron main-page container-fluid main-page">
 
@@ -87,22 +103,19 @@
                         <div class="row mt-5 align-items-center">
                         <div class="col-md-6">
                         <h1 class="my-3 fw-bold">Reservations</h1>
-                        <!-- Reservation List -->
-                        @forelse($reservations as $reservation)
-                            <div>
+                        <p>You only can have 2 reservations at any time that is pending</p>
                                 @foreach($reservations as $reservation)
-                                    <div>Reservation at {{ $reservation->date_time }}  @if  ($reservation->arrival) <span class="text-success fw-bold"> Arrived </span>@else <span class="text-danger fw-bold"> Pending </span>@endif </div>
-                                @endforeach
-                            </div>
-                        @empty
+                                    <div class="position-relative shadow rounded-5 my-2 bg-dark col-md-10 p-4 text-white fw-bold" >#{{ $reservation->id }} | {{ $reservation->date_time }}  for {{$reservation->party_size}} Guests |  @if  ($reservation->arrival)   <span class="text-success fw-bold"> Arrived </span>@else <span class="text-danger fw-bold"> Pending </span>@endif<form action="{{ route('delete_reservation', $reservation->id) }}" method="POST">@csrf<button type="submit" style="width:50px; height:50px; border-radius:40px;" class="position-absolute top-0 end-0 m-2 btn btn-danger rounded-5 fw-bold text-dark">x</button></form></div>
+                                @endforeach 
+                        @empty($reservations)
                             <p>No reservations found.</p>
-                        @endforelse
+                        @endempty
                         <!-- Reservation Form -->
                         </div>
-                        <div class="col-md-6 fw-bold mt-4">
+                        <div class="col-md-4 mx-auto shadow p-3 bg-white rounded-5  fw-bold mt-4">
                         <!-- Reservation Form -->
                         <h3 class="fw-bold my-3">Create Reservation</h3>
-                        <form class="col-md-8" action="{{ route('reservations.store') }}" method="POST">
+                        <form class="col-md-12" action="{{ route('reservations.store') }}" method="POST">
                             @csrf
                             <div class="form-group">
                                 <div class="form-check">
@@ -118,13 +131,14 @@
                             </div>
                             <div class="form-group mt-3">
                                 <label for="party_size">For How Many?</label>
-                                <input type="number" step="1" max="6" min="1" class="form-control rounded-5 p-4 col-6 my-2" id="party_size" name="party_size" required>
+                                <input type="number" step="1" max="6" min="1" class="form-control rounded-5 p-4 my-2" id="party_size" name="party_size" required>
                             </div>
                             <div class="form-group" id="date_id">
                                 <label class="mx-auto" for="date_time">For When?</label>
-                                <input id="date_time" type="date" class="form-control rounded-5 p-4 mx-a my-2" name="date_time" required>
+                                <input id="date_time" type="datetime-local" class="form-control rounded-5 p-4 mx-a my-2" name="date_time" >
                             </div>
                             <button type="submit" class="btn btn-primary p-3 fw-bold col-md-12 mt-2">Create Reservation</button>
+                            <a href="{{route('my_order')}}" class=" btn btn-success p-3 my-1 btn-block d-block my-1 w-100 fw-bold">Connect With a Reservation</a>
                         </form>
 
                         <script>
@@ -163,11 +177,29 @@
             </div>
         </div>
     </div>
+    @if(session('success'))
+    <div id="toast" class="bg-success">
+        {{ session('success') }} <span class="fw-bold ms-4" onclick="hideToast()" >x</span>
+    </div>
+    @endif
+    @if(session('error'))
+    <div id="toast" class="bg-danger text-white">
+        {{ session('error') }} <span class="fw-bold ms-4" onclick="hideToast()" >x</span>
+    </div>
+    @endif
+    <script>
+        function hideToast() {
+            document.getElementById('toast').style.display="none"
+        }
+    </script>
 
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <footer class="footer mt-auto py-3 bg-dark">
+    <div class="container bg-dark text-center text-white">
+        <span class="">© 2024 Koala Cafe. All rights reserved.</span>
+    </div>
+    </footer>
 </body>
 
 </html>

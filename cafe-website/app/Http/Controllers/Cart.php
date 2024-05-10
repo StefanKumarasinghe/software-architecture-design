@@ -65,7 +65,7 @@ class Cart
     
         $request->session()->put('cart', $cartItems);
     
-        return back()->with("Added to cart");
+        return back()->with("success","Amazing, just added to your cart");
     }
     
 
@@ -89,7 +89,7 @@ class Cart
         // Update the cart items in session
         $request->session()->put('cart', $cartItems);
     
-        return back()->with("success","Successfully removed item from the cart");
+        return back()->with("success","Sadly, we removed it from your cart");
     }
     
 }

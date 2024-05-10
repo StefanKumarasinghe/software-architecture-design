@@ -22,3 +22,5 @@ Route::post('/checkout', [Checkout::class, 'processCheckout'])->name('checkout.p
 Route::get('/reservation', [ReservationController::class, 'index'])->name('reservation');
 Route::get('/my-order', [OrderController::class, 'index'])->name('my_order');
 Route::post('/reservation', [ReservationController::class, 'store'])->name('reservations.store');
+Route::post('/update-reservation', [OrderController::class, 'updateOrder'])->name('update_order');
+Route::post('/delete-reservation/{id}', [ReservationController::class, 'destroy'])->name('delete_reservation');

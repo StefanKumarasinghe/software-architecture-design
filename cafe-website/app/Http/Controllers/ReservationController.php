@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Reservation;
+use App\Models\Order;
 use App\Models\Table;
 use Illuminate\Support\Carbon;
 
@@ -11,8 +12,18 @@ class ReservationController extends Controller
 {
     public function index()
     {
-        // Get all reservations
-        $reservations = Reservation::all();
+        // Get the user ID from the session
+        $userId = session('user_id');
+
+        
+        // Check if user ID is defined
+        if (!$userId) {
+            // Redirect to the customer route with product details
+            return redirect()->route('start_order');
+        }
+
+        // Get all reservations for the user ID
+        $reservations = Reservation::where('customer_id', $userId)->get();
         
         // Get all tables
         $tables = Table::all();
@@ -24,88 +35,80 @@ class ReservationController extends Controller
         
         return view('reservation', compact('reservations', 'availableTables'));
     }
+    
+
 
     public function store(Request $request)
     {
-
-
+        $request->validate([
+            'table_id' => 'nullable|exists:tables,id',
+            'party_size' => 'required|integer|min:1',
+            'date_time' => 'nullable'
+        ]);
+    
         // Retrieve the customer ID from the session
         $customerId = $request->session()->get('user_id');
-
+    
         // If customer ID is not set in the session, redirect to the starting_order route
         if (!$customerId) {
             return redirect()->route('starting_order')->with('error', 'Please provide customer information to proceed.');
         }
 
-        $tableId = $request->input('table_id');
+        $reservations = Reservation::where('customer_id', $customerId)->get();
+        $pendingCount = 0;
 
-        // If table_id is not provided, find a free table automatically
-        if (!$tableId) {
-            // Get all existing reservations for the given date_time
-            $existingReservations = Reservation::whereDate('date_time', $request->input('date_time'))->get();
-
-            // Get all available tables
-            $availableTables = Table::all();
-
-            // Check each available table for collisions with existing reservations
-            foreach ($availableTables as $table) {
-                $isAvailable = true;
-                foreach ($existingReservations as $existingReservation) {
-                    if ($table->id == $existingReservation->table_id) {
-                        // Table is already reserved for the given date_time
-                        $isAvailable = false;
-                        break;
-                    }
-                }
-                if ($isAvailable) {
-                    // Found an available table, assign it and break the loop
-                    $tableId = $table->id;
-                    break;
-                }
+        foreach ($reservations as $reservation) {
+            if ($reservation->arrival == 0) {
+                $pendingCount++;
             }
         }
 
-        // If no available table is found, return an error message
-        if (!$tableId) {
-            return redirect()->route('reservations')->with('error', 'No available tables for the given date and time.');
+        if ($pendingCount >= 2) {
+            return redirect()->back()->with('error', 'You can only have 2 pending reservations.');
         }
-
-        // Assign the table ID to the request data
-        $request->merge(['table_id' => $tableId, 'customer_id' => $customerId]);
-
+    
+        $tableId = $request->input('table_id');
+        $request->merge(['date_time' => Carbon::now()]);
+    
+        // If table_id is not provided, find a free table automatically
+        if (!$tableId) {
+      
+            $existingReservations = Reservation::whereDate('date_time', $request->input('date_time'))->pluck('table_id');
+    
+            // Get all available tables
+            $availableTables = Table::whereNotIn('id', $existingReservations)->get();
+    
+            // If no available tables found, return an error message
+            if ($availableTables->isEmpty()) {
+                return redirect()->route('reservations')->with('error', 'No available tables for the given date and time.');
+            }
+    
+            // Assign the first available table to the request data
+            $request->merge(['table_id' => $availableTables->first()->id]);
+        }
+    
+        // Assign the customer ID to the request data
+        $request->merge(['customer_id' => $customerId]);
+    
         // Create the reservation
         $reservation = Reservation::create($request->all());
-
-        return redirect()->route('reservations')->with('success', 'Reservation created successfully.');
+    
+        return redirect()->route('reservation')->with('success', 'Reservation created successfully.');
     }
+    
 
         
-
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'table_id' => 'required|exists:tables,id',
-            'order_id' => 'nullable|exists:orders,id',
-            'customer_id' => 'required|exists:customers,id',
-            'arrival' => 'nullable|boolean',
-            'party_size' => 'required|integer|min:1',
-            'date_time' => 'required|date_format:Y-m-d H:i:s'
-        ]);
-        $reservation = Reservation::findOrFail($id);
-        $reservation->fill($request->all());
-        $reservation->save();
-        return redirect()->route('reservations.index')->with('success', 'Reservation updated successfully.');
-    }
     public function destroy($id)
     {
-        $reservation = Reservation::findOrFail($id);
-        $reservation->delete();
-        return redirect()->route('home')->with('success', 'Reservation deleted successfully.');
+        try {
+            $reservation = Reservation::findOrFail($id);
+            $reservation->delete();
+            return redirect()->back()->with('success', 'Reservation deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Unable to delete reservation, call 045056789.');
+        }
     }
-    public function checkout($id)
-    {
-        $reservation = Reservation::findOrFail($id);
-        $reservation->checkout();
-        return redirect()->route('reservations.index')->with('success', 'Reservation checked out successfully.');
-    }
+
+
+    
 }

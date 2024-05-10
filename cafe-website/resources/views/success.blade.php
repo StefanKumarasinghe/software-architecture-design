@@ -17,7 +17,7 @@
         }
 
         .navbar {
-            background-color: #563d7c;
+            background-color: black;
       
             top: 0;
             width: 100%;
@@ -64,12 +64,13 @@
 
     <!-- Customer Information Form -->
     <div class="jumbotron container-fluid p-3  main-page">
-    <div class="my-3 bg-white p-5 mt-4 text-center  mx-auto shadow rounded-5 col-md-6">
+    <div class="my-3 bg-white p-5 mt-4 text-center  mx-auto shadow rounded-5 col-md-4">
     <h1 class="my-3  py-3">Success</h1>
     <p>Your Order was successful, your order ID is</p>
     <h2 class="text-success">#{{$order_id}}</h2>
-    <small>You should have received an email</small>
-    <button class="btn btn-warning p-3 my-1">Buy More</button>
+    <small class="fw-bold text-primary my-2" >You should have received an email</small>
+    <a href="{{route('my_order')}}" class="mt-5 btn btn-success p-3 my-1 btn-block d-block my-1 w-100 fw-bold">Connect With a Reservation</a>
+    <a href="{{route('menu')}}" class="btn btn-warning p-3 my-1 btn-block d-block my-1 w-100 fw-bold">Buy More</a>
     </div>
     </div>
 
@@ -77,9 +78,7 @@
 
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </body>
 
 </html>

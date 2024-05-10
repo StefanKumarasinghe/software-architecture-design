@@ -17,9 +17,8 @@
         }
 
         .navbar {
-            background-color: #563d7c;
-            top: 0;
-            width: 100%;
+            background-color: black;
+
         }
 
         .navbar-brand,
@@ -43,36 +42,37 @@
         }
 
         .main-page {
-            height: 100vh;
+            min-height: 100vh;
         }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg p-3 navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Koala Cafe</a>
+            <a class="navbar-brand" href="{{route('home')}}">Koala Cafe</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <div class="collapse float-end navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav float-end ">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Home</a>
+            <div class="collapse navbar-collapse fw-bold" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('menu')}}">Menu</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Menu</a>
+                        <a class="nav-link" href="{{route('reservation')}}">My Reservation</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">About Us</a>
+                        <a class="nav-link" href="{{route('cart')}}">My Cart</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
+                        <a class="nav-link" href="{{route('my_order')}}">My Orders</a>
                     </li>
                 </ul>
             </div>
+            <a href="" class="btn text-white">@if(session()->has('email')){{ session('email') }}@endif</a>
+
         </div>
     </nav>
 
@@ -80,21 +80,40 @@
     <div class="jumbotron container-fluid p-3 main-page">
         <div class="my-3 bg-white p-5 mt-4 text-center mx-auto shadow rounded-5 col-md-6">
             <h1 class="my-3  py-3">Orders</h1>
-            <p>Please contact 0499 999 99 if you need to cancel the order
+            <p class="bg-dark p-3 text-white fw-bold">Please contact 0450564589 if you need to cancel the order</p>
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>Order ID</th>
                         <th>Paid</th>
-                        <th>Completed</th>
+                        <th>Status</th>
+                        <th>Reservation ID</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($orders as $order)
                     <tr>
-                        <td>#{{ $order->id }}</td>
-                        <td>{{ $order->is_paid ? 'Yes' : 'Pedning' }}</td>
-                        <td>{{ $order->is_completed ? 'Yes' : 'No' }}</td>
+                        <td class="py-5">#{{ $order->id }}</td>
+                        <td class="py-5">{{ $order->is_paid ? 'Yes' : 'Pending' }}</td>
+                        <td class="py-5">{{ $order->is_completed ? 'Cooking' : 'Ready' }}</td>
+                        <td class="py-5">
+                            @if($order->reservation_id!=1)
+                            {{ $order->reservation_id }}
+                            @else
+                            <form action="{{route('update_order')}}" method="POST">
+                                @csrf
+                                <select name="reservation_id" class="text-center fw-bold form-select">
+                                    <option value="">Pickup</option>
+                                    @foreach($reservations as $reservation)
+                                    <option value="{{ $reservation->id }}">{{ $reservation->id }}</option>
+                                    @endforeach
+                                    <input type="hidden" value="{{ $order->id }}" name="order_id">
+                                </select>
+                                
+                                <button type="submit" class="btn btn-sm btn-success mt-2 d-block w-100 fw-bold">Change</button>
+                            </form>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -102,9 +121,11 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <footer class="footer mt-auto py-3 bg-dark">
+    <div class="container bg-dark text-center text-white">
+        <span class="">© 2024 Koala Cafe. All rights reserved.</span>
+    </div>
+    </footer>
 </body>
 
 </html>

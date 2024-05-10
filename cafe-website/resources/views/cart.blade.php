@@ -18,8 +18,7 @@
         }
 
         .navbar {
-            background-color: #563d7c;
-      
+            background-color: black;
             top: 0;
             width: 100%;
         }
@@ -45,66 +44,98 @@
         }
 
         .main-page {
-            height: 100vh;
+            min-height: 100vh;
+        }
+        #toast {
+        position: fixed;
+        bottom: 0px;
+        text-align:center;
+        background-color:green;
+        margin:10px  ;
+        display:block;
+        color: white;
+        padding: 16px;
+        border-radius: 8px;
+        z-index: 9999;
+        
         }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg p-3 navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Koala Cafe</a>
+            <a class="navbar-brand" href="{{route('home')}}">Koala Cafe</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse fw-bold" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Home</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('menu')}}">Menu</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Menu</a>
+                        <a class="nav-link" href="{{route('reservation')}}">My Reservation</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">About Us</a>
+                        <a class="nav-link" href="{{route('cart')}}">My Cart</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
+                        <a class="nav-link" href="{{route('my_order')}}">My Orders</a>
                     </li>
                 </ul>
             </div>
+            <a href="" class="btn text-white">@if(session()->has('email')){{ session('email') }}@endif</a>
+
         </div>
     </nav>
 
     <!-- Customer Information Form -->
     <div class="jumbotron container-fluid p-3  main-page">
-    <div class="my-3 card p-5 shadow col-md-6 text-center rounded-5 mx-auto py-4 mt-5">
-    <h1 class="my-3 px- mx-auto">What's in My Cart?</h1>
-    <div class="shadow rounded-5 col-md-6 mx-auto">
+    <div class="my-3 card p-5 shadow col-md-5 bg-dark text-white  rounded-5 mx-auto py-4 mt-5">
+    <h1 class="my-3  mx-auto">My Cart</h1>
+    <hr class="bg-white">
+    <div class="shadow text-center rounded-5 col-md-10 mx-auto">
     @foreach($products as $item)
         <div class=" my- mx-auto py-3 px-4 col-md-12">
-            <strong class="">{{ $item['product']->name }}</strong> x {{ $item['quantity'] }}  
-            <form action="{{ route('cart_delete') }}" method="POST" class="d-inline">
-            <button type="submit" class="btn text-danger fw-bold  mr- mx-auto"> <strong class="float-end"><span class="material-symbols-outlined">delete</span></strong></button>
+            <div class="row border-light align-items-center rounded-5 p-3">
+                <div class="col-3"><img class=" rounded-5" style="width:50px; height:50px; object-fit:cover" src="{{ $item['product']->image_url }}"></div>
+                <div class="col-9 text-start"><strong class="">{{ $item['product']->name }}</strong> x {{ $item['quantity'] }}  <form action="{{ route('cart_delete') }}" method="POST" class="d-inline">
+            <button type="submit" class="btn text-danger fw-bold  float-end mx-auto"> <strong class="float-end text-end"><span class="material-symbols-outlined">delete</span></strong></button>
                 @csrf
                 <input type="hidden" name="product" value="{{$item['product']->id}}"> 
-            </form>
+            </form></div>
+            </div> 
+            
             </div> 
     @endforeach
+    <hr class="bg-white">
+    <h4 class="my-3 text-danger">Total: AUD {{$total}}</h4>
     </div >
-    <h4 class="my-3 bg-danger mx-auto text-white p-3 col-md-6 my-3 rounded-5 ">Total: AUD {{$total}}</h4>
-    <div class="mt-2 mx-auto"><a href="{{route('menu')}}" class="btn btn-warning fw-bold mx-1 d-inline">Keep Ordering</a><a  href="{{route('checkout')}}" class=" d-inline col-md-3 btn btn-success fw-bold">Continue to Checkout</a></div>
+   
+    <div class="mt-2"><a href="{{route('menu')}}" class="btn btn-warning fw-bold mx-1 p-4 d-block my-2">Keep Ordering</a><a  href="{{route('checkout')}}" class=" col-12 btn btn-success fw-bold p-4 d-block my-2">Continue to Checkout</a></div>
     </div>
 
     
 
     </div>
+    @if(session('success'))
+    <div id="toast">
+        {{ session('success') }} <span class="fw-bold ms-4" onclick="hideToast()" >x</span>
+    </div>
+    @endif
+    <script>
+        function hideToast() {
+            document.getElementById('toast').style.display="none"
+        }
+    </script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@ mx-auto.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5. mx-auto/js/bootstrap.min.js"></script>
+    <footer class="footer mt-auto py-3 bg-dark">
+    <div class="container bg-dark text-center text-white">
+        <span class="">© 2024 Koala Cafe. All rights reserved.</span>
+    </div>
+    </footer>
 </body>
 
 </html>

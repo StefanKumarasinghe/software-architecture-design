@@ -8,10 +8,13 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $cartItems = $request->session()->get('cart', []);
+        $itemCount = count($cartItems);
+
         $products = Product::all();
-        return view('products', compact('products'));
+        return view('products', compact('products','itemCount'));
     }
 
 

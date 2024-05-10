@@ -77,4 +77,6 @@ class Order extends Model
     {
         return $this->is_completed;
     }
+
+    
 }
