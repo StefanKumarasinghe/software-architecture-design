@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 abstract class Controller
 {
-    function index() {
-         return view('welcome');
+    protected $cart;
+
+    public function __construct(Cart $cart)
+    {
+        $this->cart = $cart;
     }
+
 }

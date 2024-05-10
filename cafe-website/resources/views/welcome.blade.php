@@ -51,8 +51,8 @@
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Koala Cafe</a>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{route('home')}}">Koala Cafe</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -60,17 +60,17 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Home</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('menu')}}">Menu</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Menu</a>
+                        <a class="nav-link" href="{{route('reservation')}}">Make Reservation</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">About Us</a>
+                        <a class="nav-link" href="{{route('cart')}}">My Cart</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Contact</a>
+                        <a class="nav-link" href="{{route('my_order')}}">My Orders</a>
                     </li>
                 </ul>
             </div>
@@ -82,7 +82,7 @@
             <p class="lead">Enjoy delicious food and drinks in a cozy atmosphere.</p>
             
             <p>We specialize in providing high-quality meals using fresh ingredients.</p>
-            <a class="btn btn-primary btn-lg mr-1" href="#" role="button">Order Now</a><a class="btn btn-danger btn-lg" href="#" role="button">Reservations</a>
+            <a class="btn btn-primary btn-lg mr-1" href="{{route('start_order')}}" role="button">Order Now</a><a class="btn btn-danger btn-lg" href="{{route('reservation')}}" role="button">Reservations</a>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
